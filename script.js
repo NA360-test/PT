@@ -1,46 +1,22 @@
 // Footer year
-const yearEl = document.getElementById("year");
-if (yearEl) yearEl.textContent = new Date().getFullYear();
+document.getElementById("year").textContent = new Date().getFullYear();
 
-// Lead form
+// Lead form — placeholder handling.
+// Right now this just shows a confirmation message locally.
+// Once the Supabase backend is set up, replace the code inside
+// the submit handler with a call that saves the lead to your
+// "leads" table instead of just showing a message.
 const form = document.getElementById("leadForm");
 const note = document.getElementById("formNote");
-const submitBtn = document.getElementById("submitBtn");
 
-if (form) {
-  form.addEventListener("submit", async function (e) {
-    e.preventDefault();
-    const name = form.name.value.trim();
-    const phone = form.phone.value.trim();
-    const stage = form.stage.value;
+form.addEventListener("submit", function (e) {
+  e.preventDefault();
+  const name = form.name.value.trim();
 
-    if (!supabaseClient) {
-      note.textContent = "Backend not connected yet — see README to set up Supabase.";
-      note.style.color = "var(--magenta)";
-      return;
-    }
+  // TODO: replace this block with a Supabase insert once backend is ready.
+  // Example (for later):
+  // await supabase.from('leads').insert({ name, phone, stage })
 
-    submitBtn.disabled = true;
-    submitBtn.textContent = "Sending...";
-
-    const { error } = await supabaseClient.from("leads").insert({
-      name: name,
-      phone: phone,
-      stage: stage,
-    });
-
-    submitBtn.disabled = false;
-    submitBtn.textContent = "Request a Call";
-
-    if (error) {
-      note.style.color = "var(--magenta)";
-      note.textContent = "Something went wrong — please try again or WhatsApp us directly.";
-      console.error(error);
-      return;
-    }
-
-    note.style.color = "var(--green)";
-    note.textContent = `Thanks${name ? ", " + name : ""} — we'll reach out on WhatsApp shortly.`;
-    form.reset();
-  });
-}
+  note.textContent = `Thanks${name ? ", " + name : ""} — we'll reach out on WhatsApp shortly.`;
+  form.reset();
+});
