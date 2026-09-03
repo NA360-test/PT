@@ -1,50 +1,71 @@
-# Pranesh Trades — Website (v1 scaffold)
+# Pranesh Trades — Website + Admin Panel
 
-This is a plain website — just 3 files (`index.html`, `style.css`, `script.js`).
-No build tools, no CLI needed. Works on mobile and desktop automatically
-(the layout adjusts itself).
+Plain files, no build tools, no CLI. Works on mobile and desktop automatically.
 
-## How to get this live (all from your phone, no computer needed)
+## Files
 
-**Step 1 — Upload to GitHub**
-1. Open the GitHub app → your repo (or create a new one).
-2. Use "Add file" → "Upload files" → select all 4 files here.
+- `index.html` / `style.css` / `script.js` — the public website
+- `admin.html` / `admin.js` — private page to view everyone who filled the contact form
+- `supabase-config.js` — where your backend keys go (shared by both pages)
+
+## Step 1 — Upload to GitHub
+
+1. Open the GitHub app → your repo.
+2. "Add file" → "Upload files" → select all 6 files here.
 3. Commit.
 
-**Step 2 — Turn on GitHub Pages (free hosting)**
-1. In the repo, go to Settings → Pages.
-2. Under "Source", pick the `main` branch, root folder.
-3. Save. GitHub will give you a live link in a minute
-   (looks like `yourusername.github.io/repo-name`).
-4. Later, connect your `praneshtrades.in` domain to it under the same Pages settings
-   ("Custom domain" field).
+## Step 2 — Turn on GitHub Pages (free hosting)
+
+1. Repo → Settings → Pages.
+2. Source: `main` branch, root folder. Save.
+3. You'll get a live link in a minute. Connect `praneshtrades.in` later from the same screen.
+
+## Step 3 — Set up the backend (Supabase), so the contact form + admin panel work
+
+1. Go to supabase.com → sign up → "New project". Pick any name/region, set a database password (save it somewhere).
+2. Once the project is ready, go to **Project Settings → API**.
+   - Copy the **Project URL**
+   - Copy the **anon public** key
+3. Open `supabase-config.js` in this folder and paste them in:
+   ```
+   const SUPABASE_URL = "https://xxxxx.supabase.co";
+   const SUPABASE_ANON_KEY = "eyJ...";
+   ```
+4. In Supabase, go to the **Table Editor** → "New table". Name it `leads`. Add these columns (Supabase adds `id` and `created_at` automatically — keep those):
+   - `name` — type `text`
+   - `phone` — type `text`
+   - `stage` — type `text`
+5. Still in Supabase, go to **Authentication** → the table's RLS (Row Level Security) is ON by default — that's correct, keep it on. Go to the `leads` table → **RLS Policies** → add two policies:
+   - One policy: allow **INSERT** for role `anon` (so the public website can submit the form)
+   - One policy: allow **SELECT** for role `authenticated` (so only logged-in admins can view leads)
+   Supabase's policy editor has templates for both — pick "Enable insert for anon" and "Enable read access for authenticated users only".
+6. Create your own admin login: **Authentication → Users → Add user**. Enter your email + a password. This is what you'll use to log into `admin.html`.
+
+## Step 4 — Using the admin panel
+
+Go to `yoursite.com/admin.html`, log in with the email/password from Step 3.6.
+You'll see every form submission with name, phone, and trading stage, newest first.
+
+This page is not linked from the public site and is marked "noindex" so search
+engines won't show it — but the real security is the login, not the hidden URL.
 
 ## What you still need to fill in
 
-Everything in `[ ]` square brackets inside `index.html` is a placeholder —
-search for `[` to find them all:
-- Your positioning line under the headline
-- Real stats (years trading, traders mentored) — only publish numbers you can stand behind
-- Your 4-step mentorship roadmap description
-- Real testimonials, with permission from the people quoted
-- Your Vimeo video ID (see below)
+Search `index.html` for `[` — placeholders for your positioning line, real stats,
+roadmap steps, and testimonials (only publish stats/testimonials you can stand behind).
 
 ## Setting up the protected video
 
-1. Upload your intro video to **Vimeo** (a paid plan — "Plus" or above — is needed
-   for domain restriction and download blocking).
-2. In Vimeo settings for that video:
-   - Privacy → "Where can this be embedded" → add only your domain (praneshtrades.in)
-   - Privacy → turn OFF "Allow downloads"
-3. Copy the video ID from the Vimeo URL and paste it into `index.html`
-   where it says `YOUR_VIDEO_ID`.
+1. Upload your intro video to **Vimeo** (Plus plan or above, for domain restriction + download blocking).
+2. Vimeo video settings → Privacy → "Where can this be embedded" → your domain only.
+3. Vimeo video settings → Privacy → turn OFF "Allow downloads".
+4. Copy the video ID from the Vimeo URL into `index.html` where it says `YOUR_VIDEO_ID`.
 
-This is what actually stops the video from being downloaded or shared as a
-standalone link — no video on any website is 100% uncopyable (someone can always
-screen-record), but this closes the easy routes.
+No video is 100% uncopyable (screen recording always exists), but this closes the easy routes — no direct download, no shareable link outside your site.
 
-## Next steps (not built yet)
+## What changed in this version
 
-- Hooking the "Book a Call" form to Supabase so leads actually get saved
-- WhatsApp click-to-chat button
-- Connecting the custom domain
+- **Theme:** neon/futuristic trading-terminal look — dark background, cyan/magenta glow accents, monospace data labels, faint grid backdrop.
+- **Bug fix:** the contact form was overflowing off-screen on some phones. Cause: CSS grid/flex items don't shrink below their content size by default, and the dropdown's text was wide enough to push the layout past the screen edge. Fixed by forcing all form elements to respect their container width.
+- **Backend:** form submissions now save to Supabase instead of just showing a message.
+- **New:** `admin.html` — password-protected page to view all submitted leads.
